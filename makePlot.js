@@ -3,6 +3,7 @@ function addBlankPlot(plotDiv) {
 }
 
 async function addTracesToPlot (plot, indices, startDate) {
+    Plotly.addTraces(plot, ipc);
     for (index of indices) {
         let trace =  await makeTrace(index, startDate);
         Plotly.addTraces(plot, trace);
