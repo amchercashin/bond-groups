@@ -7,7 +7,7 @@ function addTracesToPlot (plot, indices) {
     for (index of indices) {
         let trace =  makeTrace(index);
         Plotly.addTraces(plot, trace);
-        console.log("Add trace: " + index);
+        console.log("Add blank trace: " + index);
     }
     // Plotly.relayout(plot, {showlegend: true, legend: {"orientation": "h", x: 0.5, y: -0.1}})
 }

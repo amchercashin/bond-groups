@@ -14,21 +14,7 @@ async function getFirstValue(indexID = "RGBITR", startDate = "2003-02-26", engin
     return firstValue;
 }
 
-// async function getDataAsync(indexID, startDate = "2003-02-26", engine = "stock") {
-//     const lastRecord = await getLastRecord(indexID, startDate, engine);
-//     let promises = [];
-//     let data = [];
-//         for (let i = 0; i < lastRecord; i += 100) {
-//             promises.push(axios.get("https://iss.moex.com/iss/history/engines/"+engine+"/markets/index/securities/"+indexID+".json?start="+i+"&from="+startDate));
-//         }
-//     const results = await Promise.all(promises);
-//     data = results.reduce((acc, val) => acc.concat(val.data.history.data), []);
-//     console.log("Fethed: " + indexID);
-//     return(data);    
-// }
-
 async function getDataAsync(indexID = "RGBITR", startDate = "2003-02-26", engine = "stock", fromIndex = 0) {
-    // const lastRecord = await getLastRecord(indexID, startDate, engine);
     let promiseOfData;
     promiseOfData = axios.get("https://iss.moex.com/iss/history/engines/"+engine+"/markets/index/securities/"+indexID+".json?start="+fromIndex+"&from="+startDate);
     console.log("Requested: " + indexID);
