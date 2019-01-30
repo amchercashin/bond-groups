@@ -1,27 +1,29 @@
-async function updateAllTracesLoop (plot, indices) {
+async function updateAllTracesLoop (plot, indices, startDate) {
     for (index of indices) {
         let dataUpdate = {};
         let layoutUpdate = {};
-        let dataUpdate = await maybeGetFromStore(index);
+        dataUpdate = await maybeGetFromStore(index);
         if (dataUpdate) {
-            Plotly.update(plot, dataUpdate, layoutUpdate, [, index]) // превратить буквенный индекс в номер
+            Plotly.update(plot, dataUpdate, layoutUpdate, [, traceIndexByNam(index)]);
         } else {
-            updateTraceLoop(plot, index, startDate, engine);
+            let firstValue = await getFirstValue(index, startDate, engine = "stock", valueCol = 5);
+            updateTraceLoop(plot, index, startDate, firstValue);
         }
     }
 }
 
-async function updateTraceLoop (plot, indexID, startDate, engine) {
-    const lastRecord = await getLastRecord(indexID, startDate, engine);
+async function updateTraceLoop (plot, index, startDate, firstValue) {
+    const lastRecord = await getLastRecord(index, startDate);
     let promises = [];
+    
     for (let i = 0; i < lastRecord; i += 100) {
-        promises.push(updateTraceData(plot, indexID, startDate, i));
+        promises.push(updateTraceData(plot, index, startDate, i, firstValue));
     }
-    await Promise.all(promises);
-    maybeStore(indexID, plot.data); // обновить plot.data на данные из графика из страницы
+    //await Promise.all(promises);
+    //maybeStore(index, plot.data); // обновить plot.data на данные из графика из страницы
 }
 
-async function updateTraceData (plot, index, startDate, fromIndex) {
+async function updateTraceData (plot, index, startDate, fromIndex, firstValue) {
         // if (index === "RGBITR") {
         //     let part1 = extract(await getDataAsync(index, startDate, "state"), dateCol = 2, valueCol = 7);
         //     let part2 = extract(await getDataAsync(index, "2012-03-05", "stock"));
@@ -30,14 +32,20 @@ async function updateTraceData (plot, index, startDate, fromIndex) {
         //     trace = part1;
         //     trace.y = await normalize(trace.y);
         // } else {
-            layoutUpdate = {};
-            dataUpdate = await extract(await getDataAsync(index, startDate, "stock", fromIndex));
-            dataUpdate.y = await normalize(dataUpdate.y);
+            //let layoutUpdate = {};
+            let engine = "stock";
+            let traceDataChunk = await axios.get("https://iss.moex.com/iss/history/engines/"+engine+"/markets/index/securities/"+index+".json?start="+fromIndex+"&from="+startDate);
+            dataUpdate = await extract(traceDataChunk.data.history.data);
+            dataUpdate.y = await normalize(dataUpdate.y, firstValue);
         // }
         // // trace = expandTimeseries(trace);      
         // maybeStore(index, trace);
     // }
-    Plotly.update(plot, dataUpdate, layoutUpdate, [, index])
+    Plotly.extendTraces(plot, {
+        x: [dataUpdate.x],
+        y: [dataUpdate.y]
+        }, [traceIndexByName(index)])
+    //Plotly.ext(plot, dataUpdate, layoutUpdate, [, index]) // индекс в номер графика
     // trace.type = "scatter";
     // trace.name = index;
     // return trace;

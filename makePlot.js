@@ -12,9 +12,16 @@ function addTracesToPlot (plot, indices) {
     // Plotly.relayout(plot, {showlegend: true, legend: {"orientation": "h", x: 0.5, y: -0.1}})
 }
 
-async function makeTrace(index) {
+function makeTrace(index) {
     let trace = {};
     trace.type = "scatter";
     trace.name = index;
+    trace.x = [];
+    trace.y = [];
+    trace.transforms = [{
+        type: 'sort',
+        target: 'x',
+        order: 'ascending'
+    }];
     return trace;
 }
