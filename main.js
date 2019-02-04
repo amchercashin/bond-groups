@@ -14,7 +14,14 @@ let startDate = "2010-12-30";
 
 addBlankPlot(plot);
 addTracesToPlot(plot, indices);
-updateAllTracesLoop (plot, indices, startDate)
+updateAllTracesLoop(plot, indices, startDate);//.then(
+//     () => {
+//         for (index of indices) {
+//             maybeStore(index, plot.data[traceIndexByName(index)]);
+//             console.log(index + " put to storage.");
+//         }
+//     }
+// );
 
 plot.layout = {
     showlegend: true, 

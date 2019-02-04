@@ -12,6 +12,10 @@ function traceIndexByName(indexName) {
     return indices.findIndex(function(e) {return e === indexName}) + 1
 }
 
+function flattenArray(arr) {
+    return arr.reduce(function(a, b) { return a.concat(b); }, []);
+}
+
 // function expandTimeseries(data) {
 //     const startDate = data.x[0];
 //     const endDate = data.x[data.x.length - 1];
