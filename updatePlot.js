@@ -1,23 +1,29 @@
 async function updateAllTracesLoop (plot, indices, startDate) {
-    for (index of indices) {
+    indices.forEach(async index => {
         let dataUpdate = {};
         dataUpdate = await maybeGetFromStore(index);
         if (dataUpdate) {
             Plotly.extendTraces(plot, {x: [dataUpdate.x], y: [dataUpdate.y]}, [traceIndexByName(index)]);
             console.log("Index: " + index + "loaded frome storage.");
         } else {
+            console.log("start to build: " + index);
             let promises = [];
             promises.push(updateTraceLoop(plot, index, startDate, engine = "stock"));
             if (index === "RGBITR") {
-                promises.push(updateTraceLoop(plot, index, startDate, engine = "stock"));
+                promises.push(updateTraceLoop(plot, index, startDate, engine = "state"));
             }
-            promises = await Promise.all(promises);
-            promises = await Promise.all(promises.flat());
-            console.log(plot.data[traceIndexByName(index)]);
-            await maybeStore(index, plot.data[traceIndexByName(index)]);
-            //console.log(index + " put to storage.");
+
+            Promise.all(promises).then(val => {
+                return Promise.all(val.flat()); 
+            }).then(val => {
+                maybeStore(index, plot.data[traceIndexByName(index)]);
+                console.log(index + " put to storage.");
+                return true;
+            }).catch((err) => {
+                throw new Error('Error in maybeStore promise chain' + err.message);
+            });
         }
-    }
+    });
     return true;
 }
 
