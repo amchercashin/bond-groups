@@ -4,8 +4,16 @@ async function extract(data, dateCol = 2, valueCol = 5) {
             }
 }
 
-function normalize(arr, normPoint = 0) {
-    return arr.map((el, i, arr) => el / arr[normPoint])
+function normalize(arr, firstValue) {
+    return arr.map((el, i, arr) => el / firstValue)
+}
+
+function traceIndexByName(indexName) {
+    return indices.findIndex(function(e) {return e === indexName}) + 1
+}
+
+function flattenArray(arr) {
+    return arr.reduce(function(a, b) { return a.concat(b); }, []);
 }
 
 // function expandTimeseries(data) {

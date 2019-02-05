@@ -1,5 +1,5 @@
 let plot = document.getElementById("graphDiv");
-// let bondPlot = document.getElementById("bondPlot");
+
 let indices = [ "RUGBITR1Y", "RUGBITR3Y", "RUGBITR5Y", "RUGBITR10Y", "RUGBITR5+", "RGBITR"];
 let startDate = "2010-12-30";
             //   2010-12-30
@@ -13,12 +13,8 @@ let startDate = "2010-12-30";
 // let startDate = "2010-12-30";
 
 addBlankPlot(plot);
-(async function(){
-    await addTracesToPlot(plot, indices, startDate);
-    // endDate = plot.data[0].x.slice(-1)[0];
-    // document.getElementById('start-date').max = endDate;
-    // document.getElementById('rebalance-period').max = moment.duration(moment(endDate).diff(moment(startDate))).as("days");
-})()
+addTracesToPlot(plot, indices);
+updateAllTracesLoop(plot, indices, startDate);
 
 plot.layout = {
     showlegend: true, 
@@ -32,8 +28,6 @@ plot.layout = {
         }
  };
 
-
 window.onresize = function() {
     Plotly.Plots.resize(plot);
-    // Plotly.Plots.resize(bondPlot);
 };

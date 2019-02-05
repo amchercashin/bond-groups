@@ -12,3 +12,9 @@ ipc.line = {};
 ipc.line.color = "grey";
 
 ipc.line.dash = "dash";
+
+ipc.transforms = [{
+    type: 'sort',
+    target: 'x',
+    order: 'ascending'
+}];
