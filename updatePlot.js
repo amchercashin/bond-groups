@@ -42,7 +42,7 @@ async function updateTraceLoop (plot, index, startDate, engine) {
 
 async function updateTraceData (plot, index, startDate, fromIndex, firstValue, engine) {
     let traceDataChunk = await axios.get("https://iss.moex.com/iss/history/engines/"+engine+"/markets/index/securities/"+index+".json?start="+fromIndex+"&from="+startDate);
-    dataUpdate = await extract(traceDataChunk.data.history.data);
+    let dataUpdate = await extract(traceDataChunk.data.history.data);
     dataUpdate.y = await normalize(dataUpdate.y, firstValue);
     Plotly.extendTraces(plot, {x: [dataUpdate.x], y: [dataUpdate.y]}, [traceIndexByName(index)]);
     return true;
