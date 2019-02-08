@@ -6,14 +6,14 @@ var recordEndpoint = API_ENDPOINT + "record"
 // Record a visit to this site
 fetch(recordEndpoint, {
   method: 'post',
-  mode: 'no-cors',
+  crossDomain: true,
   body: JSON.stringify({"siteUrl":currentEncodedURL})
 }).then(r => r.json())
   .then(data => console.log(data))
   .catch(e => console.log("The POST request for Nandolytics failed"))
 
 // Console log current site visits
-fetch(getEndpoint).then(r => r.json())
+fetch(getEndpoint,{crossDomain: true}).then(r => r.json())
   .then(data => {
     console.log(data['siteHits'])
   })
