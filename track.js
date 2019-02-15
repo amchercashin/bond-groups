@@ -14,8 +14,8 @@ fetch(recordEndpoint, {
   .catch(e => console.log("The POST request for Nandolytics failed"))
 
 // Console log current site visits
-// fetch(getEndpoint).then(r => r.json())
-//   .then(data => {
-//     console.log(data['siteHits'])
-//   })
-//   .catch(e => console.log("The GET request for Nandolytics failed"))
+fetch(getEndpoint).then(r => r.json())
+  .then(data => {
+    console.log(data['siteHits'])
+  })
+  .catch(e => console.log("The GET request for Nandolytics failed"))
