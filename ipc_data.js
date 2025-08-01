@@ -2,9 +2,10 @@
 //
 // This script computes the IPC series dynamically from monthly CPI percentages
 // published by the Federal State Statistics Service (Rosstat).  The series
-// is normalized so that the chosen start month aligns with the bond index
-// start date used in `main.js`.  In this repo the bond indices start on
-// 2010‑12‑30, so the CPI series is normalised to 1.0 in December 2010.
+// is normalised so that the value at a chosen month equals 1.0 and each
+// observation is dated on the last calendar day of its month.  This matches
+// the convention used for the bond indices in this repository, which
+// start and end on month‑end dates.
 
 let ipc = {};
 
@@ -36,30 +37,38 @@ const monthlyCPI = {
   2025: [101.23, 100.81, 100.65, 100.40, 100.43, 100.20],
 };
 
+// Function to compute the last day of a month (1‑indexed month)
+function getLastDay(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
 // Build the IPC series by computing the cumulative product of monthly CPI percentages.
-// The series is normalised so that the December 2010 value equals 1.0.  Each
-// point corresponds to the 15th of the month.
+// The series is normalised so that the value at December 2010 equals 1.0.
+// Each point corresponds to the last day of the month.
 ipc.x = [];
 ipc.y = [];
 let cumulative = 1.0;
-let firstValue = null;
-const normYear = 2010;    // normalisation year
-const normMonth = 12;     // normalisation month (December)
-// iterate over the years in ascending order
-for (const year of Object.keys(monthlyCPI).map(y => parseInt(y)).sort((a,b) => a - b)) {
+let normValue = null;
+const normYear = 2010;
+const normMonth = 12; // December
+
+// Iterate over years in ascending order
+for (const year of Object.keys(monthlyCPI).map(y => parseInt(y)).sort((a, b) => a - b)) {
   const cpiArr = monthlyCPI[year];
   for (let idx = 0; idx < cpiArr.length; idx++) {
     cumulative *= cpiArr[idx] / 100;
     const monthNumber = idx + 1;
-    // once we reach the normalisation month, record the cumulative value
-    if (year === normYear && monthNumber === normMonth) {
-      if (firstValue === null) firstValue = cumulative;
+    // Determine if we've reached the normalisation month
+    if (year === normYear && monthNumber === normMonth && normValue === null) {
+      normValue = cumulative;
     }
-    // if we've recorded the normalisation value, start pushing data
-    if (firstValue !== null) {
-      const normalised = cumulative / firstValue;
+    // After the normalisation point has been captured, push data
+    if (normValue !== null) {
+      const normalised = cumulative / normValue;
+      const day = getLastDay(year, monthNumber);
+      const dateStr = `${year}-${String(monthNumber).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      ipc.x.push(dateStr);
       ipc.y.push(parseFloat(normalised.toFixed(10)));
-      ipc.x.push(`${year}-${String(monthNumber).padStart(2, '0')}-15`);
     }
   }
 }
@@ -68,4 +77,3 @@ for (const year of Object.keys(monthlyCPI).map(y => parseInt(y)).sort((a,b) => a
 ipc.name = "ИПЦ";
 ipc.type = "scatter";
 ipc.line = { color: "grey", dash: "solid" };
-
