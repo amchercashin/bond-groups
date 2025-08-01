@@ -1,5 +1,4 @@
 let ipc = {};
-let ipc = {};
 
 // IPC (Consumer Price Index) data for Russia from 2003 to 2025
 const monthlyCPI = {
@@ -25,20 +24,20 @@ const monthlyCPI = {
   2022: [100.99, 101.17, 107.61, 101.56, 100.12, 99.65, 99.61, 99.48, 100.05, 100.18, 100.37, 100.78],
   2023: [100.84, 100.46, 100.37, 100.38, 100.31, 100.37, 100.63, 100.28, 100.87, 100.83, 101.11, 100.73],
   2024: [100.86, 100.68, 100.39, 100.50, 100.74, 100.64, 101.14, 100.20, 100.48, 100.75, 101.43, 101.32],
-  2025: [101.23, 100.81, 100.65, 100.40, 100.43, 100.20] // up to June 2025
+  2025: [101.23, 100.81, 100.65, 100.40, 100.43, 100.20] // data up to June 2025
 };
 
-// Build normalized CPI time series
+// Build normalized CPI series
 ipc.x = [];
 ipc.y = [];
 let cumulative = 1.0;
 let firstValue = null;
 const startYear = 2003;
-const startMonth = 2; // skip January 2003, as in asset-allocation
+const startMonth = 2; // skip January 2003
+
 for (const year of Object.keys(monthlyCPI).map(y => parseInt(y))) {
   const cpiArr = monthlyCPI[year];
   for (let idx = 0; idx < cpiArr.length; idx++) {
-    // skip months before start
     if (year === startYear && idx + 1 < startMonth) continue;
     cumulative *= cpiArr[idx] / 100;
     if (firstValue === null) firstValue = cumulative;
@@ -51,5 +50,3 @@ for (const year of Object.keys(monthlyCPI).map(y => parseInt(y))) {
 ipc.name = "ИПЦ";
 ipc.type = "scatter";
 ipc.line = { color: "grey", dash: "solid" };
-
-export { ipc };
