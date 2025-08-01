@@ -1,6 +1,15 @@
+// IPC (Consumer Price Index) data for Russia.
+//
+// This script computes the IPC series dynamically from monthly CPI percentages
+// published by the Federal State Statistics Service (Rosstat).  The series
+// is normalized so that the chosen start month aligns with the bond index
+// start date used in `main.js`.  In this repo the bond indices start on
+// 2010‑12‑30, so the CPI series is normalised to 1.0 in December 2010.
+
 let ipc = {};
 
-// IPC (Consumer Price Index) data for Russia from 2003 to 2025
+// Monthly CPI percentages by year (January through December).
+// For the most recent year (2025) data are available only through June.
 const monthlyCPI = {
   2003: [102.40, 101.63, 101.05, 101.02, 100.80, 100.80, 100.71, 99.59, 100.34, 101.00, 100.96, 101.10],
   2004: [101.75, 100.99, 100.75, 100.99, 100.74, 100.78, 100.92, 100.42, 100.43, 101.14, 101.11, 101.14],
@@ -24,29 +33,39 @@ const monthlyCPI = {
   2022: [100.99, 101.17, 107.61, 101.56, 100.12, 99.65, 99.61, 99.48, 100.05, 100.18, 100.37, 100.78],
   2023: [100.84, 100.46, 100.37, 100.38, 100.31, 100.37, 100.63, 100.28, 100.87, 100.83, 101.11, 100.73],
   2024: [100.86, 100.68, 100.39, 100.50, 100.74, 100.64, 101.14, 100.20, 100.48, 100.75, 101.43, 101.32],
-  2025: [101.23, 100.81, 100.65, 100.40, 100.43, 100.20] // data up to June 2025
+  2025: [101.23, 100.81, 100.65, 100.40, 100.43, 100.20],
 };
 
-// Build normalized CPI series
+// Build the IPC series by computing the cumulative product of monthly CPI percentages.
+// The series is normalised so that the December 2010 value equals 1.0.  Each
+// point corresponds to the 15th of the month.
 ipc.x = [];
 ipc.y = [];
 let cumulative = 1.0;
 let firstValue = null;
-const startYear = 2003;
-const startMonth = 95; // skip to 12.2010
-
-for (const year of Object.keys(monthlyCPI).map(y => parseInt(y))) {
+const normYear = 2010;    // normalisation year
+const normMonth = 12;     // normalisation month (December)
+// iterate over the years in ascending order
+for (const year of Object.keys(monthlyCPI).map(y => parseInt(y)).sort((a,b) => a - b)) {
   const cpiArr = monthlyCPI[year];
   for (let idx = 0; idx < cpiArr.length; idx++) {
-    if (year === startYear && idx + 1 < startMonth) continue;
     cumulative *= cpiArr[idx] / 100;
-    if (firstValue === null) firstValue = cumulative;
-    const normalized = cumulative / firstValue;
-    ipc.y.push(parseFloat(normalized.toFixed(10)));
-    ipc.x.push(`${year}-${String(idx + 1).padStart(2, '0')}-15`);
+    const monthNumber = idx + 1;
+    // once we reach the normalisation month, record the cumulative value
+    if (year === normYear && monthNumber === normMonth) {
+      if (firstValue === null) firstValue = cumulative;
+    }
+    // if we've recorded the normalisation value, start pushing data
+    if (firstValue !== null) {
+      const normalised = cumulative / firstValue;
+      ipc.y.push(parseFloat(normalised.toFixed(10)));
+      ipc.x.push(`${year}-${String(monthNumber).padStart(2, '0')}-15`);
+    }
   }
 }
 
+// Meta‑data for the Plotly chart
 ipc.name = "ИПЦ";
 ipc.type = "scatter";
 ipc.line = { color: "grey", dash: "solid" };
+
