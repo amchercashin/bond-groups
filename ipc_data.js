@@ -33,7 +33,7 @@ ipc.y = [];
 let cumulative = 1.0;
 let firstValue = null;
 const startYear = 2003;
-const startMonth = 2; // skip January 2003
+const startMonth = 95; // skip to 12.2010
 
 for (const year of Object.keys(monthlyCPI).map(y => parseInt(y))) {
   const cpiArr = monthlyCPI[year];
